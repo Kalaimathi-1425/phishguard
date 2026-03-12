@@ -1,0 +1,12 @@
+venv/
+__pycache__/
+*.pyc
+*.pyo
+.env
+phishtank.csv
+top-1m.csv
+tranco.zip
+phishguard.log
+*.pkl
+*.csv
+*.zip
