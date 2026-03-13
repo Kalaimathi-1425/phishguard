@@ -3,7 +3,7 @@ import os
 import uuid
 import logging
 from datetime import datetime
-from typing import List
+from typing import List,Optional
 
 import joblib
 import pandas as pd
@@ -13,7 +13,11 @@ from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 
 from feature_extractor import extract_features
+class ScanRequest(BaseModel):
+    url: str
 
+class BatchScanRequest(BaseModel):
+    urls: List[str]
 # ── Logging ───────────────────────────────────
 logging.basicConfig(
     level=logging.INFO,
@@ -27,14 +31,16 @@ logger = logging.getLogger(__name__)
 
 # ── Load ML model ─────────────────────────────
 try:
-    model   = joblib.load("phishing_model.pkl")
-    columns = joblib.load("feature_columns.pkl")
+    model          = joblib.load("phishing_model.pkl")
+    feature_columns = joblib.load("feature_columns.pkl")
+    columns        = feature_columns
     logger.info("[+] ML model loaded")
+    logger.info("[+] Feature columns loaded")
 except Exception as e:
     logger.error(f"[-] Model load failed: {e}")
-    model   = None
-    columns = []
-
+    model          = None
+    feature_columns = []
+    columns        = []
 # ── Scan history ──────────────────────────────
 scan_history = []
 MAX_HISTORY  = 1000
@@ -125,6 +131,112 @@ def health():
     }
 
 @app.post("/scan")
+async def scan_url(request: ScanRequest):
+    url = request.url.strip()
+    if not url.startswith("http"):
+        url = "https://" + url
+
+    # localhost check
+    local_indicators = ["localhost", "127.0.0.1", "0.0.0.0"]
+    sus_paths = [
+        "microphone", "camera", "password", "login",
+        "verify", "credential", "phish", "hack",
+        "steal", "capture", "keylog", "payload", "shell"
+    ]
+
+    is_local = any(x in url for x in local_indicators)
+
+    if is_local:
+        path_flags = [p for p in sus_paths if p in url.lower()]
+        score = 85 if path_flags else 40
+        verdict = "PHISHING" if path_flags else "UNKNOWN"
+        risk = "HIGH" if path_flags else "MEDIUM"
+        flags = []
+        if path_flags:
+            flags.append("Suspicious path keywords found: " + ", ".join(path_flags))
+        flags.append("localhost URL cannot be verified by external services")
+
+        return {
+            "url": url,
+            "verdict": verdict,
+            "risk": risk,
+            "phishing_probability": round(score / 100, 4),
+            "ml_probability": round(score / 100, 4),
+            "live_score": score,
+            "flags": flags,
+            "features": {
+                "url_length": len(url),
+                "has_https": 1 if url.startswith("https") else 0,
+                "hyphen_count": url.count("-"),
+                "dot_count": url.count("."),
+                "suspicious_keywords": len(path_flags),
+                "has_ip": 0,
+                "subdomain_depth": 0
+            },
+            "checks": {
+                "google_safe_browsing": {"flagged": None},
+                "virustotal": {"flagged": None},
+                "phishtank": {"flagged": None},
+                "domain_age": {"flagged": None, "age_days": -1},
+                "typosquatting": {"flagged": False},
+                "brand_impersonation": {"flagged": False}
+            }
+        }
+
+    # Normal scan for real URLs
+    try:
+        from feature_extractor import extract_features
+        from live_check import full_live_check
+        import numpy as np
+
+        features = extract_features(url)
+        feature_df = pd.DataFrame([features])
+        feature_df = feature_df.reindex(columns=feature_columns, fill_value=0)
+        ml_prob = float(model.predict_proba(feature_df)[0][1])
+
+        live_result = full_live_check(url)
+        live_score = live_result.get("score", 0)
+        flags = live_result.get("flags", [])
+        checks = live_result.get("checks", {})
+
+        final_score = (live_score * 0.8) + (ml_prob * 100 * 0.2)
+        final_prob = round(min(final_score / 100, 1.0), 4)
+
+        verdict = "PHISHING" if final_prob >= 0.3 else "SAFE"
+        risk = "HIGH" if final_prob >= 0.7 else "MEDIUM" if final_prob >= 0.3 else "LOW"
+
+        return {
+            "url": url,
+            "verdict": verdict,
+            "risk": risk,
+            "phishing_probability": final_prob,
+            "ml_probability": round(ml_prob, 4),
+            "live_score": live_score,
+            "flags": flags,
+            "features": {
+                "url_length": features.get("url_length", 0),
+                "has_https": features.get("has_https", 0),
+                "hyphen_count": features.get("hyphen_count", 0),
+                "dot_count": features.get("dot_count", 0),
+                "suspicious_keywords": features.get("suspicious_keywords", 0),
+                "has_ip": features.get("has_ip", 0),
+                "subdomain_depth": features.get("subdomain_depth", 0)
+            },
+            "checks": checks
+        }
+
+    except Exception as e:
+        return {
+            "url": url,
+            "verdict": "ERROR",
+            "risk": "UNKNOWN",
+            "phishing_probability": 0.0,
+            "ml_probability": 0.0,
+            "live_score": 0,
+            "flags": ["Error during scan: " + str(e)],
+            "features": {},
+            "checks": {}
+        }
 def scan_url(data: URLInput):
     url = fix_url(data.url)
 
