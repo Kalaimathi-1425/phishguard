@@ -235,68 +235,104 @@ def check_brand_impersonation(url: str) -> dict:
             "score":   0
         }
 
-# ── Master Function ───────────────────────────
 def full_live_check(url: str) -> dict:
     url = fix_url(url)
+    
+    # ── Localhost / local IP detection ──────────────────
+    local_indicators = [
+        "localhost", "127.0.0.1",
+        "0.0.0.0", "192.168.", "10.0.", "172.16."
+    ]
+    
+    sus_paths = [
+        "microphone", "camera", "password",
+        "login", "verify", "credential",
+        "phish", "hack", "steal", "capture",
+        "keylog", "hook", "payload", "shell",
+        "exploit", "inject", "attack", "index"
+    ]
+    
+    is_local = any(x in url for x in local_indicators)
+    
+    if is_local:
+        path_flags = [p for p in sus_paths if p in url.lower()]
+        
+        score = 85 if path_flags else 40
+        
+        flags = ["localhost URL — external checks not available"]
+        
+        if path_flags:
+            flags.append("Suspicious path keywords: " + ", ".join(path_flags))
+            flags.append("Local phishing kits often use paths like /microphone /login /verify")
+        else:
+            flags.append("Manually verify this URL before trusting it")
+        
+        return {
+            "score":   score,
+            "verdict": "SUSPICIOUS" if path_flags else "UNKNOWN",
+            "flags":   flags,
+            "checks": {
+                "google_safe_browsing":  {"flagged": None, "note": "N/A - localhost"},
+                "virustotal":            {"flagged": None, "note": "N/A - localhost"},
+                "phishtank":             {"flagged": None, "note": "N/A - localhost"},
+                "domain_age":            {"flagged": None, "age_days": -1},
+                "typosquatting":         {"flagged": False},
+                "brand_impersonation":   {"flagged": False}
+            }
+        }
+    
+    # ── Normal live checks (existing code below) ────────
+    results = {}
+    flags   = []
+    score   = 0
 
-    # Run all checks
-    google  = check_google(url)
-    vt      = check_virustotal(url)
-    pt      = check_phishtank(url)
-    age     = check_domain_age(url)
-    typo    = check_typosquatting(url)
-    brand   = check_brand_impersonation(url)
+    g = check_google(url)
+    results["google_safe_browsing"] = g
+    if g.get("flagged"):
+        score += 100
+        flags.append("Google Safe Browsing: flagged as " + str(g.get("threat_type", "PHISHING")))
 
-    # Calculate total score
-    score = 0
-    flags = []
+    v = check_virustotal(url)
+    results["virustotal"] = v
+    if v.get("flagged"):
+        mal = v.get("malicious", 0)
+        score += min(mal * 10, 80)
+        flags.append("VirusTotal: " + str(mal) + " engines flagged this URL")
 
-    if google.get("flagged"):
-        score += google.get("score", 0)
-        flags.append(f"Google: {google.get('reason')}")
+    p = check_phishtank(url)
+    results["phishtank"] = p
+    if p.get("flagged"):
+        score += 90
+        flags.append("PhishTank: confirmed phishing URL")
 
-    if vt.get("flagged"):
-        score += vt.get("score", 0)
-        flags.append(f"VirusTotal: {vt.get('reason')}")
+    d = check_domain_age(url)
+    results["domain_age"] = d
+    if d.get("flagged"):
+        age = d.get("age_days", 0)
+        score += 30
+        flags.append("Domain Age: only " + str(age) + " days old — very new domain")
 
-    if pt.get("flagged"):
-        score += pt.get("score", 0)
-        flags.append(f"PhishTank: {pt.get('reason')}")
+    t = check_typosquatting(url)
+    results["typosquatting"] = t
+    if t.get("flagged"):
+        score += 50
+        flags.append("Typosquatting: looks like a fake lookalike domain")
 
-    if age.get("flagged"):
-        score += age.get("score", 0)
-        flags.append(f"Domain Age: {age.get('reason')}")
+    b = check_brand_impersonation(url)
+    results["brand_impersonation"] = b
+    if b.get("flagged"):
+        score += 60
+        flags.append("Brand Impersonation: brand name used in suspicious domain")
 
-    if typo.get("flagged"):
-        score += typo.get("score", 0)
-        flags.append(f"Typosquatting: {typo.get('reason')}")
+    score = min(score, 100)
 
-    if brand.get("flagged"):
-        score += brand.get("score", 0)
-        flags.append(
-            f"Brand Abuse: {brand.get('reason')}")
-
-    score   = min(score, 100)
-    prob    = round(score / 100, 4)
     verdict = "PHISHING" if score >= 30 else "SAFE"
-    risk    = "HIGH"   if score >= 70 else \
-              "MEDIUM" if score >= 30 else "LOW"
 
     return {
-        "url":     url,
-        "verdict": verdict,
-        "risk":    risk,
         "score":   score,
-        "prob":    prob,
+        "verdict": verdict,
         "flags":   flags,
-        "checks": {
-            "google_safe_browsing": google,
-            "virustotal":           vt,
-            "phishtank":            pt,
-            "domain_age":           age,
-            "typosquatting":        typo,
-            "brand_impersonation":  brand
-        }
+        "checks":  results
     }
 
 # ── Run from terminal ─────────────────────────
