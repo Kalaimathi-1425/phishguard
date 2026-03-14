@@ -9,16 +9,16 @@
 .light{--bg:#f0f4ff;--bg2:#fff;--bg3:#e8edf8;--card:#fff;--border:rgba(59,130,246,0.2);--text:#1e293b;--muted:#64748b;--accent:#2563eb;--accent2:#0891b2;--danger:#dc2626;--success:#16a34a;--warn:#d97706}
 *{box-sizing:border-box;margin:0;padding:0}
 body{background:var(--bg);color:var(--text);font-family:var(--font2);transition:all 0.3s;min-height:100vh}
-.wrapper{max-width:860px;margin:0 auto;padding:2rem 1.5rem}
+.wrapper{max-width:900px;margin:0 auto;padding:2rem 1.5rem}
 .topbar{display:flex;justify-content:space-between;align-items:center;margin-bottom:2.5rem}
 .logo{display:flex;align-items:center;gap:10px}
 .logo-icon{width:38px;height:38px;background:linear-gradient(135deg,var(--accent),var(--accent2));border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px}
 .logo-text{font-family:var(--font);font-size:1.1rem;font-weight:bold;letter-spacing:2px;color:var(--accent)}
 .logo-sub{font-size:0.65rem;color:var(--muted);letter-spacing:3px;text-transform:uppercase}
-.toggle-btn{background:var(--bg3);border:1px solid var(--border);border-radius:50px;padding:6px;cursor:pointer;display:flex;align-items:center;gap:4px;transition:all 0.3s}
+.toggle-btn{background:var(--bg3);border:1px solid var(--border);border-radius:50px;padding:6px;cursor:pointer;display:flex;align-items:center;gap:4px}
 .toggle-btn span{width:32px;height:28px;border-radius:50px;display:flex;align-items:center;justify-content:center;font-size:14px;transition:all 0.3s}
 .toggle-btn .active{background:var(--accent)}
-.hero{text-align:center;margin-bottom:2.5rem}
+.hero{text-align:center;margin-bottom:2rem}
 .hero h1{font-family:var(--font);font-size:1.8rem;letter-spacing:1px;margin-bottom:0.5rem}
 .hero h1 span{color:var(--accent)}
 .hero p{color:var(--muted);font-size:0.9rem;letter-spacing:1px}
@@ -26,7 +26,12 @@ body{background:var(--bg);color:var(--text);font-family:var(--font2);transition:
 .stat-card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:1rem;text-align:center}
 .stat-num{font-family:var(--font);font-size:1.4rem;font-weight:bold}
 .stat-lbl{font-size:0.7rem;color:var(--muted);letter-spacing:1px;margin-top:3px;text-transform:uppercase}
-.scan-card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:1.5rem;margin-bottom:1.5rem}
+.tab-row{display:flex;gap:0;border-radius:12px 12px 0 0;overflow:hidden;border:1px solid var(--border);border-bottom:none}
+.tab-btn{flex:1;padding:12px;font-family:var(--font);font-size:0.75rem;letter-spacing:2px;text-transform:uppercase;background:var(--bg3);color:var(--muted);border:none;cursor:pointer;transition:all 0.2s}
+.tab-btn.active{background:var(--accent);color:white}
+.scan-card{background:var(--card);border:1px solid var(--border);border-radius:0 0 16px 16px;padding:1.5rem;margin-bottom:1.5rem}
+.tab-content{display:none}
+.tab-content.active{display:block}
 .scan-label{font-family:var(--font);font-size:0.7rem;letter-spacing:2px;color:var(--accent2);margin-bottom:0.75rem;text-transform:uppercase}
 .input-row{display:flex;gap:10px}
 .url-input{flex:1;background:var(--bg3);border:1px solid var(--border);border-radius:10px;padding:12px 16px;color:var(--text);font-family:var(--font);font-size:0.85rem;outline:none;transition:all 0.2s}
@@ -35,6 +40,12 @@ body{background:var(--bg);color:var(--text);font-family:var(--font2);transition:
 .scan-btn{background:var(--accent);border:none;border-radius:10px;padding:12px 24px;color:white;font-family:var(--font);font-size:0.8rem;letter-spacing:1px;cursor:pointer;transition:all 0.2s;white-space:nowrap}
 .scan-btn:hover{opacity:0.85;transform:translateY(-1px)}
 .scan-btn:disabled{opacity:0.5;cursor:not-allowed;transform:none}
+.batch-textarea{width:100%;background:var(--bg3);border:1px solid var(--border);border-radius:10px;padding:12px 16px;color:var(--text);font-family:var(--font);font-size:0.8rem;outline:none;resize:vertical;min-height:140px;line-height:1.8;transition:all 0.2s}
+.batch-textarea:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(59,130,246,0.1)}
+.batch-textarea::placeholder{color:var(--muted)}
+.batch-hint{font-family:var(--font);font-size:0.68rem;color:var(--muted);margin-top:6px;letter-spacing:1px}
+.batch-actions{display:flex;gap:10px;margin-top:10px;align-items:center}
+.batch-count{font-family:var(--font);font-size:0.72rem;color:var(--muted);flex:1}
 .result-box{margin-top:1.25rem;display:none}
 .result-box.show{display:block;animation:fadeIn 0.4s ease}
 @keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
@@ -67,17 +78,33 @@ body{background:var(--bg);color:var(--text);font-family:var(--font2);transition:
 .feat-val.red{color:var(--danger)}
 .feat-val.green{color:var(--success)}
 .feat-val.warn{color:var(--warn)}
+.batch-result-box{margin-top:1.25rem;display:none}
+.batch-result-box.show{display:block;animation:fadeIn 0.4s ease}
+.batch-summary{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:1rem}
+.batch-stat{background:var(--bg3);border:1px solid var(--border);border-radius:10px;padding:12px;text-align:center}
+.batch-stat-num{font-family:var(--font);font-size:1.3rem;font-weight:bold}
+.batch-stat-lbl{font-size:0.68rem;color:var(--muted);letter-spacing:1px;text-transform:uppercase;margin-top:3px}
+.batch-table{width:100%;border-collapse:collapse;font-family:var(--font);font-size:0.75rem}
+.batch-table th{text-align:left;padding:8px 12px;color:var(--muted);letter-spacing:1px;text-transform:uppercase;border-bottom:1px solid var(--border);font-size:0.65rem}
+.batch-table td{padding:10px 12px;border-bottom:1px solid var(--border);vertical-align:middle}
+.batch-table tr:last-child td{border-bottom:none}
+.batch-table tr:hover td{background:var(--bg3)}
+.batch-url{max-width:260px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--text)}
+.batch-badge{font-family:var(--font);font-size:0.65rem;letter-spacing:1px;padding:3px 10px;border-radius:99px;white-space:nowrap}
+.badge-safe{background:rgba(34,197,94,0.15);color:var(--success)}
+.badge-phish{background:rgba(239,68,68,0.15);color:var(--danger)}
+.badge-warn{background:rgba(245,158,11,0.15);color:var(--warn)}
+.badge-error{background:rgba(100,116,139,0.15);color:var(--muted)}
+.batch-prob{color:var(--muted)}
+.batch-flags{font-size:0.68rem;color:var(--muted);max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .history-section{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:1.5rem}
 .section-title{font-family:var(--font);font-size:0.72rem;letter-spacing:2px;color:var(--accent2);text-transform:uppercase;margin-bottom:1rem}
 .history-empty{text-align:center;color:var(--muted);font-size:0.85rem;padding:1.5rem 0}
-.hist-item{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--border);cursor:pointer}
+.hist-item{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--border)}
 .hist-item:last-child{border-bottom:none}
 .hist-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
 .hist-url{flex:1;font-family:var(--font);font-size:0.78rem;color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .hist-badge{font-family:var(--font);font-size:0.65rem;letter-spacing:1px;padding:3px 8px;border-radius:99px;flex-shrink:0}
-.badge-safe{background:rgba(34,197,94,0.15);color:var(--success)}
-.badge-phish{background:rgba(239,68,68,0.15);color:var(--danger)}
-.badge-warn{background:rgba(245,158,11,0.15);color:var(--warn)}
 .hist-prob{font-family:var(--font);font-size:0.72rem;color:var(--muted);flex-shrink:0}
 .api-note{background:var(--bg3);border-left:3px solid var(--accent);border-radius:0 8px 8px 0;padding:10px 14px;margin-top:1.5rem;font-family:var(--font);font-size:0.75rem;color:var(--muted);line-height:1.6}
 .api-note span{color:var(--accent)}
@@ -88,6 +115,9 @@ body{background:var(--bg);color:var(--text);font-family:var(--font2);transition:
 .loading-dots span:nth-child(3){animation-delay:0.4s}
 @keyframes dot{0%,80%,100%{opacity:0.3}40%{opacity:1}}
 .divider{font-family:var(--font);font-size:0.68rem;letter-spacing:2px;color:var(--muted);text-transform:uppercase;margin:1rem 0 0.75rem;padding-bottom:6px;border-bottom:1px solid var(--border)}
+.progress-bar{height:4px;background:var(--bg3);border-radius:99px;overflow:hidden;margin-top:12px;display:none}
+.progress-bar.show{display:block}
+.progress-fill{height:100%;background:var(--accent);border-radius:99px;transition:width 0.4s}
 </style>
 </head>
 <body id="app">
@@ -105,61 +135,269 @@ body{background:var(--bg);color:var(--text);font-family:var(--font2);transition:
       <span id="lightOpt">&#x2600;</span>
     </button>
   </div>
+
   <div class="hero">
     <h1>URL <span>Threat</span> Scanner</h1>
     <p>&#x25BA; “Protecting You From the Hidden Hooks of the Internet.”</p>
   </div>
+
   <div class="stats-row">
     <div class="stat-card"><div class="stat-num" id="totalScanned" style="color:var(--accent)">0</div><div class="stat-lbl">URLs Scanned</div></div>
     <div class="stat-card"><div class="stat-num" id="totalPhish" style="color:var(--danger)">0</div><div class="stat-lbl">Threats Found</div></div>
     <div class="stat-card"><div class="stat-num" id="totalSafe" style="color:var(--success)">0</div><div class="stat-lbl">Safe URLs</div></div>
   </div>
-  <div class="scan-card">
-    <div class="scan-label">&#x25BA; Enter URL to scan</div>
-    <div class="input-row">
-      <input class="url-input" id="urlInput" type="text" placeholder="https://example.com/login"/>
-      <button class="scan-btn" id="scanBtn" onclick="scanURL()">
-        <span id="btnText">SCAN</span>
-        <span class="loading-dots" id="btnLoader"><span></span><span></span><span></span></span>
-      </button>
-    </div>
-    <div class="result-box" id="resultBox">
-      <div class="verdict-row" id="verdictRow">
-        <div class="verdict-icon" id="verdictIcon"></div>
-        <div><div class="verdict-label" id="verdictLabel"></div><div class="verdict-sub" id="verdictSub"></div></div>
-      </div>
-      <div class="prob-bar-wrap">
-        <div class="prob-label"><span>PHISHING PROBABILITY</span><span id="probPct">0%</span></div>
-        <div class="prob-track"><div class="prob-fill" id="probFill" style="width:0%"></div></div>
-      </div>
-      <div class="reasons-box" id="reasonsBox">
-        <div class="reasons-title">&#x25BA; Why this is phishing</div>
-        <div id="reasonsList"></div>
-      </div>
-      <div class="divider">&#x25BA; Detection checks</div>
-      <div class="checks-grid" id="checksGrid"></div>
-      <div class="divider">&#x25BA; URL features</div>
-      <div class="features-grid" id="featuresGrid"></div>
-    </div>
+
+  <div class="tab-row">
+    <button class="tab-btn active" id="tab1" onclick="switchTab('single')">&#x25BA; Single Scan</button>
+    <button class="tab-btn" id="tab2" onclick="switchTab('batch')">&#x25BA; Batch Scan</button>
   </div>
+
+  <div class="scan-card">
+
+    <!-- Single Scan -->
+    <div class="tab-content active" id="singleTab">
+      <div class="scan-label">&#x25BA; Enter URL to scan</div>
+      <div class="input-row">
+        <input class="url-input" id="urlInput" type="text" placeholder="https://example.com/login"/>
+        <button class="scan-btn" id="scanBtn" onclick="scanURL()">
+          <span id="btnText">SCAN</span>
+          <span class="loading-dots" id="btnLoader"><span></span><span></span><span></span></span>
+        </button>
+      </div>
+      <div class="result-box" id="resultBox">
+        <div class="verdict-row" id="verdictRow">
+          <div class="verdict-icon" id="verdictIcon"></div>
+          <div><div class="verdict-label" id="verdictLabel"></div><div class="verdict-sub" id="verdictSub"></div></div>
+        </div>
+        <div class="prob-bar-wrap">
+          <div class="prob-label"><span>PHISHING PROBABILITY</span><span id="probPct">0%</span></div>
+          <div class="prob-track"><div class="prob-fill" id="probFill" style="width:0%"></div></div>
+        </div>
+        <div class="reasons-box" id="reasonsBox">
+          <div class="reasons-title">&#x25BA; Why this is phishing</div>
+          <div id="reasonsList"></div>
+        </div>
+        <div class="divider">&#x25BA; Detection checks</div>
+        <div class="checks-grid" id="checksGrid"></div>
+        <div class="divider">&#x25BA; URL features</div>
+        <div class="features-grid" id="featuresGrid"></div>
+      </div>
+    </div>
+
+    <!-- Batch Scan -->
+    <div class="tab-content" id="batchTab">
+      <div class="scan-label">&#x25BA; Enter URLs — one per line (max 20)</div>
+      <textarea class="batch-textarea" id="batchInput" placeholder="https://google.com
+https://paypa1-secure-verify.xyz
+http://amazon-account-update.tk/verify
+http://gooogle.com/login/password
+http://192.168.1.1/login/verify/password"></textarea>
+      <div class="batch-hint">&#x25BA; Paste one URL per line — up to 20 URLs at once</div>
+      <div class="batch-actions">
+        <span class="batch-count" id="batchCount">0 URLs entered</span>
+        <button class="scan-btn" id="batchBtn" onclick="scanBatch()">
+          <span id="batchBtnText">SCAN ALL</span>
+          <span class="loading-dots" id="batchLoader"><span></span><span></span><span></span></span>
+        </button>
+      </div>
+      <div class="progress-bar" id="progressBar">
+        <div class="progress-fill" id="progressFill" style="width:0%"></div>
+      </div>
+      <div class="batch-result-box" id="batchResultBox">
+        <div class="divider">&#x25BA; Batch scan results</div>
+        <div class="batch-summary">
+          <div class="batch-stat"><div class="batch-stat-num" id="bTotal" style="color:var(--accent)">0</div><div class="batch-stat-lbl">Total Scanned</div></div>
+          <div class="batch-stat"><div class="batch-stat-num" id="bPhish" style="color:var(--danger)">0</div><div class="batch-stat-lbl">Threats Found</div></div>
+          <div class="batch-stat"><div class="batch-stat-num" id="bSafe" style="color:var(--success)">0</div><div class="batch-stat-lbl">Safe URLs</div></div>
+        </div>
+        <div style="overflow-x:auto">
+          <table class="batch-table">
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>URL</th>
+                <th>Verdict</th>
+                <th>Risk</th>
+                <th>Probability</th>
+                <th>Reason</th>
+              </tr>
+            </thead>
+            <tbody id="batchTableBody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
   <div class="history-section">
     <div class="section-title">&#x25BA; Scan History</div>
     <div id="historyList"><div class="history-empty">No scans yet — enter a URL above to get started</div></div>
   </div>
+
   <div class="api-note">
-    <span>API:</span> POST http://localhost:8000/scan &nbsp;|&nbsp;
+    <span>Single:</span> POST http://localhost:8000/scan &nbsp;|&nbsp;
     <span>Batch:</span> POST http://localhost:8000/scan/batch &nbsp;|&nbsp;
     <span>Docs:</span> http://localhost:8000/docs
   </div>
 </div>
+
 <script>
 let isDark=true,scanHistory=[],totalScanned=0,totalPhish=0,totalSafe=0;
-function toggleTheme(){isDark=!isDark;document.getElementById('app').className=isDark?'':'light';document.getElementById('darkOpt').className=isDark?'active':'';document.getElementById('lightOpt').className=isDark?'':'active';}
-async function scanURL(){const input=document.getElementById('urlInput');const url=input.value.trim();if(!url){input.focus();return;}const btn=document.getElementById('scanBtn');const btnText=document.getElementById('btnText');const loader=document.getElementById('btnLoader');btn.disabled=true;btnText.style.display='none';loader.classList.add('show');try{const res=await fetch('http://localhost:8000/scan',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({url})});const data=await res.json();showResult(data);addToHistory(data);}catch(e){const mock=mockScan(url);showResult(mock);addToHistory(mock);}finally{btn.disabled=false;btnText.style.display='inline';loader.classList.remove('show');}}
-function mockScan(url){let score=0;const flags=[];const sus=['login','verify','secure','update','account','confirm','password','signin','free','lucky','bonus'];const found=sus.filter(w=>url.toLowerCase().includes(w));if(found.length){score+=found.length*10;flags.push('Suspicious keywords found: '+found.join(', '));}if(url.includes('@')){score+=30;flags.push('URL contains @ symbol — used to deceive users');}if(/https?:\/\/\d+\.\d+\.\d+\.\d+/.test(url)){score+=40;flags.push('IP address used instead of domain name');}if((url.match(/-/g)||[]).length>2){score+=20;flags.push('Excessive hyphens in domain name');}const badTlds=['.xyz','.top','.tk','.ml','.ga','.cf','.online','.site'];badTlds.forEach(t=>{if(url.includes(t)){score+=25;flags.push('Suspicious top-level domain: '+t);}});if(!url.startsWith('https')){score+=10;flags.push('No HTTPS — connection is not secure');}if(url.length>80){score+=15;flags.push('URL is unusually long ('+url.length+' characters)');}const brands=['paypal','google','amazon','apple','microsoft','facebook','netflix'];const ext=url.replace('https://','').replace('http://','').split('/')[0];brands.forEach(b=>{if(ext.includes(b)&&!ext.endsWith(b+'.com')){score+=35;flags.push('Brand name "'+b+'" used in suspicious domain');}});score=Math.min(score,99);const prob=score/100;const verdict=score>=30?'PHISHING':'SAFE';const risk=score>=70?'HIGH':score>=30?'MEDIUM':'LOW';return{url,verdict,risk,phishing_probability:parseFloat(prob.toFixed(4)),ml_probability:parseFloat(prob.toFixed(4)),live_score:score,flags,features:{url_length:url.length,has_https:url.startsWith('https')?1:0,hyphen_count:(url.match(/-/g)||[]).length,dot_count:(url.match(/\./g)||[]).length,suspicious_keywords:found.length,has_ip:/https?:\/\/\d+\.\d+\.\d+\.\d+/.test(url)?1:0,subdomain_depth:ext.split('.').length-1},checks:{google_safe_browsing:{flagged:score>50,source:'Google Safe Browsing'},virustotal:{flagged:score>60,source:'VirusTotal'},phishtank:{flagged:false,source:'PhishTank'},domain_age:{flagged:score>40,age_days:score>40?5:365,source:'Domain Age'},typosquatting:{flagged:score>30,source:'Typosquatting'},brand_impersonation:{flagged:score>40,source:'Brand Check'}}};}
-function showResult(data){const box=document.getElementById('resultBox');const row=document.getElementById('verdictRow');const icon=document.getElementById('verdictIcon');const label=document.getElementById('verdictLabel');const sub=document.getElementById('verdictSub');const pct=document.getElementById('probPct');const fill=document.getElementById('probFill');const reasonsBox=document.getElementById('reasonsBox');const reasonsList=document.getElementById('reasonsList');const checksGrid=document.getElementById('checksGrid');const featGrid=document.getElementById('featuresGrid');const prob=data.phishing_probability;const verdict=data.verdict;const risk=data.risk;row.className='verdict-row '+(verdict==='SAFE'?'safe':risk==='MEDIUM'?'warn':'phish');icon.textContent=verdict==='SAFE'?'✓':'✕';label.textContent=verdict;label.style.color=verdict==='SAFE'?'var(--success)':risk==='HIGH'?'var(--danger)':'var(--warn)';sub.textContent='Risk Level: '+risk+' | Confidence: '+(prob*100).toFixed(1)+'%';pct.textContent=(prob*100).toFixed(1)+'%';fill.style.background=prob>0.7?'var(--danger)':prob>0.4?'var(--warn)':'var(--success)';setTimeout(()=>{fill.style.width=(prob*100)+'%';},50);const flags=data.flags||[];if(flags.length>0&&verdict!=='SAFE'){reasonsBox.classList.add('show');reasonsList.innerHTML=flags.map(f=>'<div class="reason-item"><div class="reason-dot"></div><div class="reason-text">'+f+'</div></div>').join('');}else{reasonsBox.classList.remove('show');reasonsList.innerHTML='';}const checks=data.checks||{};const checkLabels={google_safe_browsing:'Google Safe Browsing',virustotal:'VirusTotal',phishtank:'PhishTank',domain_age:'Domain Age',typosquatting:'Typosquatting',brand_impersonation:'Brand Check'};checksGrid.innerHTML=Object.entries(checkLabels).map(([k,name])=>{const c=checks[k]||{};const flagged=c.flagged;const color=flagged===true?'var(--danger)':flagged===false?'var(--success)':'var(--muted)';const status=flagged===true?'FLAGGED':flagged===false?'CLEAN':'N/A';const extra=k==='domain_age'&&c.age_days>=0?' ('+c.age_days+'d)':'';return'<div class="check-chip"><div class="check-dot" style="background:'+color+'"></div><div><div class="check-name">'+name+'</div><div class="check-status" style="color:'+color+'">'+status+extra+'</div></div></div>';}).join('');const fm={url_length:{label:'URL Length',risk:v=>v>80?'red':'green'},has_https:{label:'HTTPS',fmt:v=>v?'YES':'NO',risk:v=>v?'green':'red'},hyphen_count:{label:'Hyphens',risk:v=>v>2?'red':'green'},dot_count:{label:'Dots',risk:v=>v>4?'red':'green'},suspicious_keywords:{label:'Susp. Words',risk:v=>v>1?'red':v>0?'warn':'green'},has_ip:{label:'IP in URL',fmt:v=>v?'YES':'NO',risk:v=>v?'red':'green'},subdomain_depth:{label:'Subdomains',risk:v=>v>2?'red':'green'},url_entropy:{label:'Entropy',fmt:v=>parseFloat(v).toFixed(2),risk:v=>v>4?'warn':'green'}};if(data.features){featGrid.innerHTML=Object.entries(data.features).slice(0,8).map(([k,v])=>{const m=fm[k]||{label:k.replace(/_/g,' '),risk:()=>''};const val=m.fmt?m.fmt(v):v;return'<div class="feat-chip"><div class="feat-name">'+m.label+'</div><div class="feat-val '+m.risk(v)+'">'+val+'</div></div>';}).join('');}box.classList.add('show');}
-function addToHistory(data){totalScanned++;if(data.verdict==='SAFE')totalSafe++;else totalPhish++;document.getElementById('totalScanned').textContent=totalScanned;document.getElementById('totalPhish').textContent=totalPhish;document.getElementById('totalSafe').textContent=totalSafe;scanHistory.unshift(data);if(scanHistory.length>8)scanHistory.pop();renderHistory();}
-function renderHistory(){const list=document.getElementById('historyList');if(!scanHistory.length){list.innerHTML='<div class="history-empty">No scans yet</div>';return;}list.innerHTML=scanHistory.map(h=>{const cls=h.verdict==='SAFE'?'safe':h.risk==='HIGH'?'phish':'warn';const dot=h.verdict==='SAFE'?'var(--success)':h.risk==='HIGH'?'var(--danger)':'var(--warn)';return'<div class="hist-item"><div class="hist-dot" style="background:'+dot+'"></div><div class="hist-url">'+h.url+'</div><span class="hist-badge badge-'+cls+'">'+h.verdict+'</span><span class="hist-prob">'+(h.phishing_probability*100).toFixed(0)+'%</span></div>';}).join('');}
+
+function toggleTheme(){
+  isDark=!isDark;
+  document.getElementById('app').className=isDark?'':'light';
+  document.getElementById('darkOpt').className=isDark?'active':'';
+  document.getElementById('lightOpt').className=isDark?'':'active';
+}
+
+function switchTab(tab){
+  document.getElementById('singleTab').classList.toggle('active',tab==='single');
+  document.getElementById('batchTab').classList.toggle('active',tab==='batch');
+  document.getElementById('tab1').classList.toggle('active',tab==='single');
+  document.getElementById('tab2').classList.toggle('active',tab==='batch');
+}
+
+document.addEventListener('DOMContentLoaded',()=>{
+  const ta=document.getElementById('batchInput');
+  if(ta){
+    ta.addEventListener('input',function(){
+      const urls=this.value.split('\n').map(u=>u.trim()).filter(u=>u.length>0);
+      document.getElementById('batchCount').textContent=urls.length+' URL'+(urls.length!==1?'s':'')+' entered';
+    });
+  }
+});
+
+async function scanURL(){
+  const input=document.getElementById('urlInput');
+  const url=input.value.trim();
+  if(!url){input.focus();return;}
+  const btn=document.getElementById('scanBtn');
+  const btnText=document.getElementById('btnText');
+  const loader=document.getElementById('btnLoader');
+  btn.disabled=true;btnText.style.display='none';loader.classList.add('show');
+  try{
+    const res=await fetch('http://localhost:8000/scan',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({url})});
+    const data=await res.json();
+    showResult(data);addToHistory(data);
+  }catch(e){
+    showResult({url,verdict:'ERROR',risk:'UNKNOWN',phishing_probability:0,flags:['Could not connect to API — make sure server is running'],features:{},checks:{}});
+  }finally{
+    btn.disabled=false;btnText.style.display='inline';loader.classList.remove('show');
+  }
+}
+
+async function scanBatch(){
+  const textarea=document.getElementById('batchInput');
+  const urls=textarea.value.split('\n').map(u=>u.trim()).filter(u=>u.length>0);
+  if(!urls.length){textarea.focus();return;}
+  if(urls.length>20){alert('Maximum 20 URLs at once!');return;}
+  const btn=document.getElementById('batchBtn');
+  const btnText=document.getElementById('batchBtnText');
+  const loader=document.getElementById('batchLoader');
+  const progressBar=document.getElementById('progressBar');
+  const progressFill=document.getElementById('progressFill');
+  btn.disabled=true;btnText.style.display='none';loader.classList.add('show');
+  progressBar.classList.add('show');progressFill.style.width='10%';
+  try{
+    const res=await fetch('http://localhost:8000/scan/batch',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({urls})});
+    progressFill.style.width='80%';
+    const data=await res.json();
+    progressFill.style.width='100%';
+    setTimeout(()=>{progressBar.classList.remove('show');},500);
+    showBatchResult(data);
+  }catch(e){
+    progressBar.classList.remove('show');
+    alert('Could not connect to API. Make sure server is running on port 8000!');
+  }finally{
+    btn.disabled=false;btnText.style.display='inline';loader.classList.remove('show');
+  }
+}
+
+function showBatchResult(data){
+  const results=data.results||[];
+  document.getElementById('bTotal').textContent=data.total||results.length;
+  document.getElementById('bPhish').textContent=data.phishing||0;
+  document.getElementById('bSafe').textContent=data.safe||0;
+  const tbody=document.getElementById('batchTableBody');
+  tbody.innerHTML=results.map((r,i)=>{
+    const cls=r.verdict==='SAFE'?'safe':r.verdict==='ERROR'?'error':r.risk==='HIGH'?'phish':'warn';
+    const prob=r.phishing_probability!=null?(r.phishing_probability*100).toFixed(1)+'%':'N/A';
+    const reason=(r.flags&&r.flags.length)?r.flags[0]:'—';
+    const dot=r.verdict==='SAFE'?'var(--success)':r.verdict==='ERROR'?'var(--muted)':r.risk==='HIGH'?'var(--danger)':'var(--warn)';
+    return`<tr>
+      <td style="color:var(--muted);font-size:0.7rem">${i+1}</td>
+      <td><div class="batch-url" title="${r.url}">${r.url}</div></td>
+      <td><span class="batch-badge badge-${cls}">${r.verdict}</span></td>
+      <td style="color:${dot};font-family:var(--font);font-size:0.72rem">${r.risk||'—'}</td>
+      <td class="batch-prob">${prob}</td>
+      <td><div class="batch-flags" title="${reason}">${reason}</div></td>
+    </tr>`;
+  }).join('');
+  document.getElementById('batchResultBox').classList.add('show');
+  results.forEach(r=>addToHistory(r,false));
+}
+
+function showResult(data){
+  const prob=data.phishing_probability||0;
+  const verdict=data.verdict;
+  const risk=data.risk;
+  const row=document.getElementById('verdictRow');
+  row.className='verdict-row '+(verdict==='SAFE'?'safe':risk==='MEDIUM'?'warn':'phish');
+  document.getElementById('verdictIcon').textContent=verdict==='SAFE'?'✓':'✕';
+  const label=document.getElementById('verdictLabel');
+  label.textContent=verdict;
+  label.style.color=verdict==='SAFE'?'var(--success)':risk==='HIGH'?'var(--danger)':'var(--warn)';
+  document.getElementById('verdictSub').textContent='Risk Level: '+risk+' | Confidence: '+(prob*100).toFixed(1)+'%';
+  document.getElementById('probPct').textContent=(prob*100).toFixed(1)+'%';
+  const fill=document.getElementById('probFill');
+  fill.style.background=prob>0.7?'var(--danger)':prob>0.4?'var(--warn)':'var(--success)';
+  setTimeout(()=>{fill.style.width=(prob*100)+'%';},50);
+  const flags=data.flags||[];
+  const reasonsBox=document.getElementById('reasonsBox');
+  const reasonsList=document.getElementById('reasonsList');
+  if(flags.length>0&&verdict!=='SAFE'){
+    reasonsBox.classList.add('show');
+    reasonsList.innerHTML=flags.map(f=>'<div class="reason-item"><div class="reason-dot"></div><div class="reason-text">'+f+'</div></div>').join('');
+  }else{reasonsBox.classList.remove('show');reasonsList.innerHTML='';}
+  const checks=data.checks||{};
+  const checkLabels={google_safe_browsing:'Google Safe Browsing',virustotal:'VirusTotal',phishtank:'PhishTank',domain_age:'Domain Age',typosquatting:'Typosquatting',brand_impersonation:'Brand Check'};
+  document.getElementById('checksGrid').innerHTML=Object.entries(checkLabels).map(([k,name])=>{
+    const c=checks[k]||{};const flagged=c.flagged;
+    const color=flagged===true?'var(--danger)':flagged===false?'var(--success)':'var(--muted)';
+    const status=flagged===true?'FLAGGED':flagged===false?'CLEAN':'N/A';
+    const extra=k==='domain_age'&&c.age_days>=0?' ('+c.age_days+'d)':'';
+    return'<div class="check-chip"><div class="check-dot" style="background:'+color+'"></div><div><div class="check-name">'+name+'</div><div class="check-status" style="color:'+color+'">'+status+extra+'</div></div></div>';
+  }).join('');
+  const fm={url_length:{label:'URL Length',risk:v=>v>80?'red':'green'},has_https:{label:'HTTPS',fmt:v=>v?'YES':'NO',risk:v=>v?'green':'red'},hyphen_count:{label:'Hyphens',risk:v=>v>2?'red':'green'},dot_count:{label:'Dots',risk:v=>v>4?'red':'green'},suspicious_keywords:{label:'Susp. Words',risk:v=>v>1?'red':v>0?'warn':'green'},has_ip:{label:'IP in URL',fmt:v=>v?'YES':'NO',risk:v=>v?'red':'green'},subdomain_depth:{label:'Subdomains',risk:v=>v>2?'red':'green'},url_entropy:{label:'Entropy',fmt:v=>parseFloat(v).toFixed(2),risk:v=>v>4?'warn':'green'}};
+  if(data.features){document.getElementById('featuresGrid').innerHTML=Object.entries(data.features).slice(0,8).map(([k,v])=>{const m=fm[k]||{label:k.replace(/_/g,' '),risk:()=>''};const val=m.fmt?m.fmt(v):v;return'<div class="feat-chip"><div class="feat-name">'+m.label+'</div><div class="feat-val '+m.risk(v)+'">'+val+'</div></div>';}).join('');}
+  document.getElementById('resultBox').classList.add('show');
+}
+
+function addToHistory(data,render=true){
+  if(!data||!data.url)return;
+  totalScanned++;
+  if(data.verdict==='SAFE')totalSafe++;
+  else if(data.verdict==='PHISHING')totalPhish++;
+  document.getElementById('totalScanned').textContent=totalScanned;
+  document.getElementById('totalPhish').textContent=totalPhish;
+  document.getElementById('totalSafe').textContent=totalSafe;
+  scanHistory.unshift(data);
+  if(scanHistory.length>10)scanHistory.pop();
+  if(render)renderHistory();
+}
+
+function renderHistory(){
+  const list=document.getElementById('historyList');
+  if(!scanHistory.length){list.innerHTML='<div class="history-empty">No scans yet</div>';return;}
+  list.innerHTML=scanHistory.map(h=>{
+    const cls=h.verdict==='SAFE'?'safe':h.risk==='HIGH'?'phish':'warn';
+    const dot=h.verdict==='SAFE'?'var(--success)':h.risk==='HIGH'?'var(--danger)':'var(--warn)';
+    return'<div class="hist-item"><div class="hist-dot" style="background:'+dot+'"></div><div class="hist-url">'+h.url+'</div><span class="hist-badge badge-'+cls+'">'+h.verdict+'</span><span class="hist-prob">'+(((h.phishing_probability||0)*100).toFixed(0))+'%</span></div>';
+  }).join('');
+}
+
 document.getElementById('urlInput').addEventListener('keydown',e=>{if(e.key==='Enter')scanURL();});
 </script>
 </body>

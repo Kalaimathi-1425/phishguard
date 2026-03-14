@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<title>PhishGuard</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{width:360px;min-height:480px;background:#0a0e1a;color:#e2e8f0;font-family:'Courier New',monospace;font-size:13px}
+.header{background:#131c2e;border-bottom:1px solid rgba(99,179,237,0.15);padding:14px 16px;display:flex;align-items:center;gap:10px}
+.logo-icon{width:32px;height:32px;background:linear-gradient(135deg,#3b82f6,#06b6d4);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0}
+.logo-text{font-size:0.9rem;font-weight:bold;letter-spacing:2px;color:#3b82f6}
+.logo-sub{font-size:0.6rem;color:#64748b;letter-spacing:2px}
+.status-dot{width:8px;height:8px;border-radius:50%;margin-left:auto;flex-shrink:0}
+.status-dot.online{background:#22c55e;box-shadow:0 0 6px #22c55e}
+.status-dot.offline{background:#ef4444}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:rgba(99,179,237,0.1);border-top:1px solid rgba(99,179,237,0.1)}
+.stat{background:#0a0e1a;padding:12px 8px;text-align:center}
+.stat-num{font-size:1.3rem;font-weight:bold}
+.stat-lbl{font-size:0.6rem;color:#64748b;letter-spacing:1px;margin-top:2px;text-transform:uppercase}
+.scan-section{padding:14px 16px;border-bottom:1px solid rgba(99,179,237,0.1)}
+.scan-label{font-size:0.65rem;letter-spacing:2px;color:#06b6d4;margin-bottom:8px;text-transform:uppercase}
+.scan-row{display:flex;gap:8px}
+.scan-input{flex:1;background:#1a2235;border:1px solid rgba(99,179,237,0.15);border-radius:8px;padding:8px 10px;color:#e2e8f0;font-family:'Courier New',monospace;font-size:0.75rem;outline:none}
+.scan-input:focus{border-color:#3b82f6}
+.scan-input::placeholder{color:#64748b}
+.scan-btn{background:#3b82f6;border:none;border-radius:8px;padding:8px 14px;color:white;font-family:'Courier New',monospace;font-size:0.7rem;letter-spacing:1px;cursor:pointer;white-space:nowrap}
+.scan-btn:hover{opacity:0.85}
+.scan-btn:disabled{opacity:0.5}
+.result{margin-top:10px;display:none}
+.result.show{display:block}
+.result-verdict{display:flex;align-items:center;gap:8px;padding:8px 12px;border-radius:8px;margin-bottom:8px}
+.result-verdict.safe{background:rgba(34,197,94,0.1);border:1px solid rgba(34,197,94,0.25)}
+.result-verdict.phish{background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.25)}
+.result-verdict.warn{background:rgba(245,158,11,0.1);border:1px solid rgba(245,158,11,0.25)}
+.verdict-text{font-size:0.85rem;font-weight:bold;letter-spacing:1px}
+.verdict-sub{font-size:0.65rem;color:#64748b;margin-top:1px}
+.prob-bar{height:5px;background:#1a2235;border-radius:99px;overflow:hidden;margin-bottom:8px}
+.prob-fill{height:100%;border-radius:99px;transition:width 0.5s}
+.flags-list{max-height:80px;overflow-y:auto}
+.flag-item{display:flex;gap:6px;padding:5px 8px;background:rgba(239,68,68,0.07);border:1px solid rgba(239,68,68,0.2);border-radius:5px;margin-bottom:4px;font-size:0.65rem;color:#e2e8f0;line-height:1.4}
+.flag-dot{width:4px;height:4px;border-radius:50%;background:#ef4444;flex-shrink:0;margin-top:4px}
+.current-tab{padding:10px 16px;border-bottom:1px solid rgba(99,179,237,0.1)}
+.current-label{font-size:0.6rem;letter-spacing:2px;color:#64748b;margin-bottom:6px;text-transform:uppercase}
+.current-url{font-size:0.68rem;color:#94a3b8;word-break:break-all;margin-bottom:6px;line-height:1.4}
+.current-result{font-size:0.7rem;font-weight:bold;letter-spacing:1px}
+.history-section{padding:10px 16px}
+.history-label{font-size:0.6rem;letter-spacing:2px;color:#06b6d4;margin-bottom:8px;text-transform:uppercase}
+.hist-item{display:flex;align-items:center;gap:8px;padding:7px 0;border-bottom:1px solid rgba(99,179,237,0.08)}
+.hist-item:last-child{border-bottom:none}
+.hist-dot{width:6px;height:6px;border-radius:50%;flex-shrink:0}
+.hist-url{flex:1;font-size:0.68rem;color:#94a3b8;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.hist-badge{font-size:0.6rem;letter-spacing:1px;padding:2px 7px;border-radius:99px;flex-shrink:0}
+.badge-safe{background:rgba(34,197,94,0.15);color:#22c55e}
+.badge-phish{background:rgba(239,68,68,0.15);color:#ef4444}
+.badge-warn{background:rgba(245,158,11,0.15);color:#f59e0b}
+.hist-time{font-size:0.6rem;color:#475569;flex-shrink:0}
+.empty{text-align:center;color:#475569;font-size:0.75rem;padding:16px 0}
+.api-status{padding:8px 16px;background:#131c2e;border-top:1px solid rgba(99,179,237,0.1);font-size:0.6rem;color:#475569;display:flex;justify-content:space-between;align-items:center}
+.open-dashboard{color:#3b82f6;cursor:pointer;letter-spacing:1px}
+.open-dashboard:hover{text-decoration:underline}
+.loading{display:inline-flex;gap:3px}
+.loading span{width:4px;height:4px;border-radius:50%;background:#3b82f6;animation:dot 1s infinite}
+.loading span:nth-child(2){animation-delay:0.2s}
+.loading span:nth-child(3){animation-delay:0.4s}
+@keyframes dot{0%,80%,100%{opacity:0.3}40%{opacity:1}}
+</style>
+</head>
+<body>
+<div class="header">
+  <div class="logo-icon">&#x1F6E1;</div>
+  <div>
+    <div class="logo-text">PHISHGUARD</div>
+    <div class="logo-sub">Phishing Detector</div>
+  </div>
+  <div class="status-dot offline" id="statusDot"></div>
+</div>
+<div class="stats">
+  <div class="stat"><div class="stat-num" id="totalScanned" style="color:#3b82f6">0</div><div class="stat-lbl">Scanned</div></div>
+  <div class="stat"><div class="stat-num" id="totalPhishing" style="color:#ef4444">0</div><div class="stat-lbl">Threats</div></div>
+  <div class="stat"><div class="stat-num" id="totalSafe" style="color:#22c55e">0</div><div class="stat-lbl">Safe</div></div>
+</div>
+<div class="current-tab">
+  <div class="current-label">&#x25BA; Current tab</div>
+  <div class="current-url" id="currentUrl">Loading...</div>
+  <div class="current-result" id="currentResult" style="color:#64748b">Checking...</div>
+</div>
+<div class="scan-section">
+  <div class="scan-label">&#x25BA; Scan any URL</div>
+  <div class="scan-row">
+    <input class="scan-input" id="urlInput" type="text" placeholder="https://example.com"/>
+    <button class="scan-btn" id="scanBtn" onclick="scanURL()">SCAN</button>
+  </div>
+  <div class="result" id="resultBox">
+    <div class="result-verdict" id="verdictRow">
+      <div>
+        <div class="verdict-text" id="verdictText"></div>
+        <div class="verdict-sub" id="verdictSub"></div>
+      </div>
+    </div>
+    <div class="prob-bar"><div class="prob-fill" id="probFill" style="width:0%"></div></div>
+    <div class="flags-list" id="flagsList"></div>
+  </div>
+</div>
+<div class="history-section">
+  <div class="history-label">&#x25BA; Recent scans</div>
+  <div id="historyList"><div class="empty">No scans yet</div></div>
+</div>
+<div class="api-status">
+  <span id="apiStatusText">API: checking...</span>
+  <span class="open-dashboard" onclick="openDashboard()">Open Dashboard &#x25BA;</span>
+</div>
+<script src="popup.js"></script>
+</body>
+</html>
+

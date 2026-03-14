@@ -148,63 +148,118 @@ def check_phishtank(url: str) -> dict:
         }
 
 # ── Check 4: Domain Age ───────────────────────
+
 def check_domain_age(url: str) -> dict:
     try:
         import whois
-        domain  = tldextract.extract(url).registered_domain
-        w       = whois.whois(domain)
-        created = w.creation_date
-        if isinstance(created, list):
-            created = created[0]
-        age = (datetime.now() - created).days
+        from datetime import timezone
+        domain   = tldextract.extract(url).registered_domain
+        w        = whois.whois(domain)
+        creation = w.creation_date
 
-        return {
-            "flagged":  age < 30,
-            "age_days": age,
-            "reason":   f"Domain only {age} days old" \
-                        if age < 30 \
-                        else f"Domain is {age} days old",
-            "source":   "Domain Age Check",
-            "score":    30 if age < 30 else 0
-        }
+        if isinstance(creation, list):
+            creation = creation[0]
+
+        if creation is None:
+            return {
+                "flagged" : True,
+                "reason"  : "Could not determine domain age",
+                "source"  : "Domain Age",
+                "age_days": -1,
+                "score"   : 20
+            }
+
+        if hasattr(creation, 'tzinfo') and creation.tzinfo is not None:
+            creation = creation.replace(tzinfo=None)
+
+        age_days = (datetime.now() - creation).days
+
+        if age_days < 30:
+            return {
+                "flagged" : True,
+                "reason"  : f"Domain only {age_days} days old — very suspicious",
+                "source"  : "Domain Age",
+                "age_days": age_days,
+                "score"   : 30
+            }
+        elif age_days < 180:
+            return {
+                "flagged" : True,
+                "reason"  : f"Domain only {age_days} days old — suspicious",
+                "source"  : "Domain Age",
+                "age_days": age_days,
+                "score"   : 15
+            }
+        else:
+            return {
+                "flagged" : False,
+                "reason"  : f"Domain is {age_days} days old — legitimate",
+                "source"  : "Domain Age",
+                "age_days": age_days,
+                "score"   : 0
+            }
+
     except Exception as e:
         return {
-            "flagged": None,
-            "source":  "Domain Age",
-            "error":   str(e),
-            "score":   0
+            "flagged" : True,
+            "reason"  : "Could not verify domain age — treating as suspicious",
+            "source"  : "Domain Age",
+            "age_days": -1,
+            "score"   : 20
         }
-
 # ── Check 5: Typosquatting ────────────────────
 def check_typosquatting(url: str) -> dict:
     try:
+        import tldextract
+        from difflib import SequenceMatcher
+
+        BRANDS = [
+            "paypal","google","amazon","apple","microsoft",
+            "facebook","netflix","instagram","twitter",
+            "linkedin","dropbox","github","yahoo","ebay",
+            "walmart","chase","wellsfargo","bankofamerica"
+        ]
+
         ext    = tldextract.extract(url)
         domain = ext.domain.lower()
 
+        # Normalize digit substitutions
+        normalized = domain
+        normalized = normalized.replace("0","o")
+        normalized = normalized.replace("1","l")
+        normalized = normalized.replace("3","e")
+        normalized = normalized.replace("4","a")
+        normalized = normalized.replace("5","s")
+        normalized = normalized.replace("-","")
+
         for brand in BRANDS:
-            ratio = SequenceMatcher(
-                None, domain, brand).ratio()
-            if 0.75 < ratio < 1.0:
+            # Check original domain
+            r1 = SequenceMatcher(None, domain, brand).ratio()
+            # Check normalized domain
+            r2 = SequenceMatcher(None, normalized, brand).ratio()
+            best = max(r1, r2)
+
+            if 0.72 <= best < 1.0:
                 return {
                     "flagged": True,
-                    "reason":  f"'{domain}' looks like '{brand}'",
-                    "source":  "Typosquatting Detection",
-                    "score":   50
+                    "reason" : f"Typosquatting: '{domain}' is {round(best*100)}% similar to '{brand}'",
+                    "source" : "Typosquatting Detection",
+                    "score"  : 50
                 }
+
         return {
             "flagged": False,
-            "reason":  "No typosquatting detected",
-            "source":  "Typosquatting Detection",
-            "score":   0
+            "reason" : "No typosquatting detected",
+            "source" : "Typosquatting Detection",
+            "score"  : 0
         }
     except Exception as e:
         return {
-            "flagged": None,
-            "source":  "Typosquatting",
-            "error":   str(e),
-            "score":   0
+            "flagged": False,
+            "reason" : f"Error: {e}",
+            "source" : "Typosquatting Detection",
+            "score"  : 0
         }
-
 # ── Check 6: Brand Impersonation ──────────────
 def check_brand_impersonation(url: str) -> dict:
     try:
