@@ -242,24 +242,7 @@ phishguard/
 
 ---
 
-## Deployment
 
-### Render (Free, No Credit Card)
-```bash
-# Push to GitHub then:
-# 1. Go to render.com
-# 2. Connect GitHub repo
-# 3. Add environment variables
-# 4. Deploy!
-```
-
-### Docker
-```bash
-docker build -t phishguard .
-docker run -p 8000:8000 phishguard
-```
-
----
 
 ## Screenshots
 
@@ -296,9 +279,8 @@ This project is licensed under the MIT License.
 
 ## Authors
 
-**Kalaimathi**
 - GitHub: [@Kalaimathi-1425](https://github.com/Kalaimathi-1425)
-**Manikandan**
+
 - Github: [Manikandan-1425](https://github.com/Manikandan-1425)
 ---
 
