@@ -294,11 +294,12 @@ This project is licensed under the MIT License.
 
 ---
 
-## Author
+## Authors
 
 **Kalaimathi**
 - GitHub: [@Kalaimathi-1425](https://github.com/Kalaimathi-1425)
-
+**Manikandan**
+- Github: [Manikandan-1425](https://github.com/Manikandan-1425)
 ---
 
 ## Disclaimer
